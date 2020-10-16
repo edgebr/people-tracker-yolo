@@ -1,0 +1,4 @@
+*__pycache__*
+weights/*
+deep_sort/deep/checkpoint/*
+samples/*
