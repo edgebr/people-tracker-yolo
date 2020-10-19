@@ -147,8 +147,8 @@ class YoloTracker(PersonTracker):
                 confss = torch.Tensor(confs)
                 outputs = self.deepsort.update(xywhs, confss, im0)
                 if len(outputs) > 0:
-                    idx = outputs[:, :4]
-                    bb = outputs[:, -1]
+                    bb = outputs[:, :4]
+                    idx = outputs[:, -1]
 
         self.t3 = time_synchronized()
 
@@ -190,4 +190,6 @@ if __name__ == "__main__":
         print(f'FPS: {tracker.general_fps():.3f}, '
               f'{tracker.obj_detect_fps():.3f}, '
               f'{tracker.deep_sort_fps():.3f}')
+        if idx is not None:
+            print(f'types: {type(idx)}, {type(bb)}, 0: {idx[0]}, {bb[0]}')
         print(f'Persons: {len(idx) if idx is not None else 0}')
