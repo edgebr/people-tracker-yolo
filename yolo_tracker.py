@@ -1,7 +1,7 @@
 import sys
 import os.path
 from utils.general import (
-    check_img_size, non_max_suppression, scale_coords)
+    check_img_size, non_max_suppression, scale_coords, xyxy2xywh)
 from utils.torch_utils import select_device, time_synchronized
 from utils.parser import get_config
 from deep_sort import DeepSort
@@ -20,6 +20,7 @@ sys.path.append(
 
 from person_tracker import PersonTracker
 
+FILE_PATH = os.path.dirname( os.path.abspath(__file__) )
 
 def bbox_rel(image_width, image_height,  *xyxy):
     """
@@ -73,17 +74,18 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
 
 class YoloTracker(PersonTracker):
 
-    def setup(self, weights='weights/yolov5x.pt', conf_thres=0.4,
+    def setup(self, weights=os.path.join(FILE_PATH, 'weights', 'yolov5x.pt'), conf_thres=0.4,
               iou_thres=0.5, device='0', imgsz=640, classes=[0],
               agnostic_nms=True):
+        self.file_path = os.path.dirname( os.path.abspath(__file__) )
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
         self.classes = classes
         self.agnostic_nms = agnostic_nms
         self.imgsz = imgsz
         cfg = get_config()
-        cfg.merge_from_file('deep_sort/deep_sort.yaml')
-        self.deepsort = DeepSort(cfg.DEEPSORT.REID_CKPT,
+        cfg.merge_from_file( os.path.join(FILE_PATH, 'deep_sort', 'deep_sort.yaml') )
+        self.deepsort = DeepSort( os.path.join(FILE_PATH, cfg.DEEPSORT.REID_CKPT),
                                  max_dist=cfg.DEEPSORT.MAX_DIST,
                                  min_confidence=cfg.DEEPSORT.MIN_CONFIDENCE,
                                  nms_max_overlap=cfg.DEEPSORT.NMS_MAX_OVERLAP,
@@ -142,12 +144,11 @@ class YoloTracker(PersonTracker):
                     bbox_xywh.append(obj)
                     confs.append([conf.item()])
 
-                print('runing deepsort...')
                 xywhs = torch.Tensor(bbox_xywh)
                 confss = torch.Tensor(confs)
                 outputs = self.deepsort.update(xywhs, confss, im0)
-                if len(outputs) > 0:
-                    bb = outputs[:, :4]
+                if len(outputs) > 0:                  
+                    bb = xyxy2xywh(outputs[:, :4])
                     idx = outputs[:, -1]
 
         self.t3 = time_synchronized()

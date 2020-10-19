@@ -39,6 +39,14 @@ def xywh2xyxy(x):
     y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
     return y
 
+def xyxy2xywh(x):
+    # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
+    y = torch.zeros_like(x) if isinstance(x, torch.Tensor) else np.zeros_like(x)
+    y[:, 0] = x[:, 0]  # x left corner
+    y[:, 1] = x[:, 1]  # y up corner 
+    y[:, 2] = x[:, 2] - x[:, 0] # width
+    y[:, 3] = x[:, 3] - x[:, 1] # height
+    return y
 
 def clip_coords(boxes, img_shape):
     """
@@ -172,6 +180,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     """
     Rescale coords (xyxy) from img1_shape to img0_shape
     """
+    
     if ratio_pad is None:  # calculate from img0_shape
         gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
         pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
