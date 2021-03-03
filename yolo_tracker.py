@@ -75,7 +75,7 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
 class YoloTracker(PersonTracker):
 
     def setup(self, weights=os.path.join(FILE_PATH, 'weights', 'yolov5x.pt'), conf_thres=0.4,
-              iou_thres=0.5, device='0', imgsz=640, classes=[0],
+              iou_thres=0.5, device='cpu', imgsz=640, classes=[0],
               agnostic_nms=True):
         self.file_path = os.path.dirname( os.path.abspath(__file__) )
         self.conf_thres = conf_thres
@@ -93,7 +93,7 @@ class YoloTracker(PersonTracker):
                                  max_age=cfg.DEEPSORT.MAX_AGE,
                                  n_init=cfg.DEEPSORT.N_INIT,
                                  nn_budget=cfg.DEEPSORT.NN_BUDGET,
-                                 use_cuda=True)
+                                 use_cuda=False)
         self.device = select_device(device)
         self.half = self.device.type != 'cpu'
         self.model = torch.load(weights, map_location=self.device)['model'].float()
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     import cv2
 
     tracker = YoloTracker()
-    source = 'samples/vid02.mp4'
+    source = 'samples/video_example_mczs_1.mp4'
 
     cap = cv2.VideoCapture(source)
     assert cap.isOpened(), f'Failed to Open {source}'
@@ -188,9 +188,9 @@ if __name__ == "__main__":
 
         idx, bb = tracker.update(img)
 
-        print(f'FPS: {tracker.general_fps():.3f}, '
-              f'{tracker.obj_detect_fps():.3f}, '
-              f'{tracker.deep_sort_fps():.3f}')
+        # print(f'FPS: {tracker.general_fps():.3f}, '
+        #       f'{tracker.obj_detect_fps():.3f}, '
+        #       f'{tracker.deep_sort_fps():.3f}')
         if idx is not None:
             print(f'types: {type(idx)}, {type(bb)}, 0: {idx[0]}, {bb[0]}')
         print(f'Persons: {len(idx) if idx is not None else 0}')
