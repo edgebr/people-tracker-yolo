@@ -1,17 +1,21 @@
-import argparse
-import logging
 import math
+import logging
+import argparse
+
 from copy import deepcopy
 from pathlib import Path
 
 import torch
 import torch.nn as nn
 
-from models.common import Conv, Bottleneck, SPP, DWConv, Focus, BottleneckCSP, Concat
+from models.common import Conv, Bottleneck, SPP, DWConv, Focus
+from models.common import BottleneckCSP, Concat
 from models.experimental import MixConv2d, CrossConv, C3
-from utils.general import check_anchor_order, make_divisible, check_file, set_logging
-from utils.torch_utils import (
-    time_synchronized, fuse_conv_and_bn, model_info, scale_img, initialize_weights, select_device)
+from detector.utils.general import check_anchor_order, make_divisible
+from detector.utils.general import check_file, set_logging
+from detector.utils.torch_utils import time_synchronized, fuse_conv_and_bn
+from detector.utils.torch_utils import model_info, scale_img
+from detector.utils.torch_utils import initialize_weights, select_device
 
 logger = logging.getLogger(__name__)
 

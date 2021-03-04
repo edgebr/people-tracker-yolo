@@ -2,7 +2,7 @@ import unittest
 import os
 import cv2
 
-from yolo_tracker import YoloTracker
+from tracker.yolo_tracker import YoloTracker
 
 
 class TestYoloTracker(unittest.TestCase):

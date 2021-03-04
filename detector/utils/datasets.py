@@ -2,11 +2,13 @@
 import glob
 import os
 import time
+
 from pathlib import Path
 from threading import Thread
 
 import cv2
 import numpy as np
+
 from PIL import ExifTags
 
 img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.dng']

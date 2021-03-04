@@ -135,3 +135,6 @@ samples/*
 
 .idea
 *.iml
+
+*.t7
+*.pt

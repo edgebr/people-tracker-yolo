@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import logging
 
-from .model import Net
+from deep_sort.deep.model import Net
 
 class Extractor(object):
     def __init__(self, model_path, use_cuda=True):

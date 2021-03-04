@@ -3,8 +3,9 @@ version: '3.8'
 services:
   people-tracker-yolo:
     build: .
+    env_file: yolo_tracker.env
     entrypoint: python3 setup.py test
     volumes:
       - .:/opt/src
-#      - ./yolov5x.pt:/opt/src/weights/yolov5x.pt
-#      - ./ckpt.t7:/opt/src/deep_sort/deep/checkpoint/ckpt.t7
+      - ./yolov5x.pt:/opt/src/weights/yolov5x.pt
+      - ./ckpt.t7:/opt/src/deep_sort/deep/checkpoint/ckpt.t7

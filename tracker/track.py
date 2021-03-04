@@ -1,20 +1,22 @@
-from utils.datasets import LoadImages, LoadStreams
-from utils.general import (
-    check_img_size, non_max_suppression, scale_coords)
-from utils.torch_utils import select_device, time_synchronized
-from utils.parser import get_config
-from deep_sort import DeepSort
-import argparse
 import os
-import platform
-import shutil
 import time
-from pathlib import Path
+import shutil
+import argparse
+import platform
+
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.models as tv_models
-# https://github.com/pytorch/pytorch/issues/3678
+
+from pathlib import Path
+
+from detector.utils.general import check_img_size, scale_coords
+from detector.utils.torch_utils import select_device, time_synchronized
+from detector.utils.parser import get_config
+from detector.utils.datasets import  LoadImages, LoadStreams
+
+from deep_sort import DeepSort
 
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)

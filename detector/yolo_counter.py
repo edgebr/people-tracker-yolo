@@ -1,24 +1,15 @@
-import sys
-import os.path
-from utils.general import non_max_suppression, scale_coords
-from utils.torch_utils import select_device
-from utils.parser import get_config
-import os
 import cv2
 import torch
 import numpy as np
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
-)
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+from detector.utils.general import non_max_suppression, scale_coords
+from detector.utils.torch_utils import select_device
+from detector import settings
 
 
-def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True,
-              scaleFill=False, scaleup=True):
+def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True):
     """
-    Resize image to a 32-pixel-multiple rectangle
-    https://github.com/ultralytics/yolov3/issues/232
+    Resize image to a 32-pixel-multiple rectangle https://github.com/ultralytics/yolov3/issues/232
     """
     shape = img.shape[:2]  # current shape [height, width]
     if isinstance(new_shape, int):
@@ -47,8 +38,7 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True,
         img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
     top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
     left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-    img = cv2.copyMakeBorder(img, top, bottom, left, right,
-                             cv2.BORDER_CONSTANT, value=color)  # add border
+    img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (dw, dh)
 
 
@@ -57,22 +47,22 @@ class YoloCounter:
     def __init__(self):
         self.__setup()
 
-    def __setup(self, weights=os.path.join(FILE_PATH, 'weights', 'yolov5x.pt'),
-                conf_thres=0.4, iou_thres=0.5, device='0', imgsz=640,
-                classes=[0], agnostic_nms=True):
+    def __setup(self, weights=settings.NET_WEIGHTS, conf_thres=0.4, iou_thres=0.5,
+                device='0', imgsz=640, classes=[0], agnostic_nms=True):
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
         self.classes = classes
         self.agnostic_nms = agnostic_nms
         self.imgsz = imgsz
-        cfg = get_config()
-        cfg.merge_from_file(
-            os.path.join(FILE_PATH, 'deep_sort', 'deep_sort.yaml')
-        )
-        self.device = select_device(device)
+
+        try:
+            self.device = select_device(device)
+        except AssertionError:
+            device = 'cpu'
+            self.device = select_device(device)
+
         self.half = self.device.type != 'cpu'
-        self.model = \
-            torch.load(weights, map_location=self.device)['model'].float()
+        self.model = torch.load(weights, map_location=self.device)['model'].float()
         self.model.to(self.device).eval()
         if self.half:
             self.model.half()
@@ -81,9 +71,8 @@ class YoloCounter:
             self.model(img.half() if self.half else img)
         print('Setup completed')
 
-    def update(self, img):
-        im0 = img.copy()
 
+    def preprocessing_image(self, img):
         img = letterbox(img, new_shape=self.imgsz)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
@@ -93,6 +82,14 @@ class YoloCounter:
         img /= 255.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
+
+        return img
+
+
+    def update(self, img):
+        im0 = img.copy()
+
+        img = self.preprocessing_image(img)
 
         pred = self.model(img)[0]
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres,
