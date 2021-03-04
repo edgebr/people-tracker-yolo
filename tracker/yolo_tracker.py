@@ -1,12 +1,10 @@
 import os
 
 import torch
-import numpy as np
 
 from detector.utils.general import non_max_suppression
 from detector.utils.general import scale_coords, xyxy2xywh
-from detector.utils.torch_utils import time_synchronized
-from detector.yolo_counter import YoloCounter, letterbox
+from detector.yolo_detector import YoloDetector
 
 from deep_sort import DeepSort
 
@@ -35,7 +33,7 @@ def bbox_rel(image_width, image_height,  *xyxy):
     return x_c, y_c, w, h
 
 
-class YoloTracker(YoloCounter):
+class YoloTracker(YoloDetector):
 
     def __init__(self):
         super(YoloTracker, self).__init__()

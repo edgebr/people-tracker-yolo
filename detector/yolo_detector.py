@@ -42,7 +42,7 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
     return img, ratio, (dw, dh)
 
 
-class YoloCounter:
+class YoloDetector:
 
     def __init__(self):
         self.__setup()
