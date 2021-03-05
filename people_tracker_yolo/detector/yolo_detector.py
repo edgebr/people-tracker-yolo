@@ -2,9 +2,9 @@ import cv2
 import torch
 import numpy as np
 
-from detector.utils.general import non_max_suppression, scale_coords
-from detector.utils.torch_utils import select_device
-from detector import settings
+from people_tracker_yolo.detector.utils.general import non_max_suppression, scale_coords
+from people_tracker_yolo.detector.utils.torch_utils import select_device
+from people_tracker_yolo.detector import settings
 
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True):
@@ -48,7 +48,7 @@ class YoloDetector:
         self.__setup()
 
     def __setup(self, weights=settings.NET_WEIGHTS, conf_thres=0.4, iou_thres=0.5,
-                device='0', imgsz=640, classes=[0], agnostic_nms=True):
+                device=settings.DEVICE, imgsz=640, classes=[0], agnostic_nms=True):
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
         self.classes = classes
@@ -62,7 +62,8 @@ class YoloDetector:
             self.device = select_device(device)
 
         self.half = self.device.type != 'cpu'
-        self.model = torch.load(weights, map_location=self.device)['model'].float()
+        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path_or_model=weights)
+        self.model = self.model.autoshape()  # for PIL/cv2/np inputs and NMS
         self.model.to(self.device).eval()
         if self.half:
             self.model.half()

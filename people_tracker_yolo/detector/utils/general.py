@@ -1,30 +1,7 @@
-import math
 import time
-import logging
-
-import cv2
-import matplotlib
 import numpy as np
 import torch
 import torchvision
-
-# Set printoptions
-torch.set_printoptions(linewidth=320, precision=5, profile='long')
-np.set_printoptions(linewidth=320, 
-                    formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5
-matplotlib.rc('font', **{'size': 11})
-
-# Prevent OpenCV from multithreading (to use PyTorch DataLoader)
-cv2.setNumThreads(0)
-
-# ------------ Interna -------------------
-
-
-def make_divisible(x, divisor):
-    """
-    Returns x evenly divisble by divisor
-    """
-    return math.ceil(x / divisor) * divisor
 
 
 def xywh2xyxy(x):
@@ -39,14 +16,16 @@ def xywh2xyxy(x):
     y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
     return y
 
+
 def xyxy2xywh(x):
     # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
     y = torch.zeros_like(x) if isinstance(x, torch.Tensor) else np.zeros_like(x)
     y[:, 0] = x[:, 0]  # x left corner
-    y[:, 1] = x[:, 1]  # y up corner 
+    y[:, 1] = x[:, 1]  # y up corner
     y[:, 2] = x[:, 2] - x[:, 0] # width
     y[:, 3] = x[:, 3] - x[:, 1] # height
     return y
+
 
 def clip_coords(boxes, img_shape):
     """
@@ -81,18 +60,6 @@ def box_iou(box1, box2):
     # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
     inter = (torch.min(box1[:, None, 2:], box2[:, 2:]) - torch.max(box1[:, None, :2], box2[:, :2])).clamp(0).prod(2)
     return inter / (area1[:, None] + area2 - inter)  # iou = inter / (area1 + area2 - inter)
-
-# ------------ Externa --------------------
-
-
-def check_img_size(img_size, s=32):
-    """
-    Verify img_size is a multiple of stride s
-    """
-    new_size = make_divisible(img_size, int(s))  # ceil gs-multiple
-    if new_size != img_size:
-        print('WARNING: --img-size %g must be multiple of max stride %g, updating to %g' % (img_size, s, new_size))
-    return new_size
 
 
 def non_max_suppression(prediction, conf_thres=0.1, iou_thres=0.6, merge=False, classes=None, agnostic=False):
@@ -180,7 +147,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     """
     Rescale coords (xyxy) from img1_shape to img0_shape
     """
-    
+
     if ratio_pad is None:  # calculate from img0_shape
         gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
         pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
@@ -193,30 +160,3 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     coords[:, :4] /= gain
     clip_coords(coords, img0_shape)
     return coords
-
-
-def check_anchor_order(m):
-    # Check anchor order against stride order for YOLOv5 Detect() module m, and correct if necessary
-    a = m.anchor_grid.prod(-1).view(-1)  # anchor area
-    da = a[-1] - a[0]  # delta a
-    ds = m.stride[-1] - m.stride[0]  # delta s
-    if da.sign() != ds.sign():  # same order
-        print('Reversing anchor order')
-        m.anchors[:] = m.anchors.flip(0)
-        m.anchor_grid[:] = m.anchor_grid.flip(0)
-
-
-def check_file(file):
-    # Search for file if not found
-    if os.path.isfile(file) or file == '':
-        return file
-    else:
-        files = glob.glob('./**/' + file, recursive=True)  # find file
-        assert len(files), 'File Not Found: %s' % file  # assert file was found
-        return files[0]  # return first file if multiple found
-
-
-def set_logging(rank=-1):
-    logging.basicConfig(
-        format="%(message)s",
-        level=logging.INFO if rank in [-1, 0] else logging.WARN)

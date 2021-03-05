@@ -2,10 +2,10 @@
 from __future__ import absolute_import
 import numpy as np
 
-from deep_sort.sort import kalman_filter
-from deep_sort.sort import linear_assignment
-from deep_sort.sort import iou_matching
-from deep_sort.sort.track import Track
+from people_tracker_yolo.deep_sort.sort import kalman_filter
+from people_tracker_yolo.deep_sort.sort import linear_assignment
+from people_tracker_yolo.deep_sort.sort import iou_matching
+from people_tracker_yolo.deep_sort.sort.track import Track
 
 
 class Tracker:

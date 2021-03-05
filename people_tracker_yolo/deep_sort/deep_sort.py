@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 
-from deep_sort.deep.feature_extractor import Extractor
-from deep_sort.sort.nn_matching import NearestNeighborDistanceMetric
-from deep_sort.sort.preprocessing import non_max_suppression
-from deep_sort.sort.detection import Detection
-from deep_sort.sort.tracker import Tracker
+from people_tracker_yolo.deep_sort.deep.feature_extractor import Extractor
+from people_tracker_yolo.deep_sort.sort.nn_matching import NearestNeighborDistanceMetric
+from people_tracker_yolo.deep_sort.sort.preprocessing import non_max_suppression
+from people_tracker_yolo.deep_sort.sort.detection import Detection
+from people_tracker_yolo.deep_sort.sort.tracker import Tracker
 
 
 __all__ = ['DeepSort']

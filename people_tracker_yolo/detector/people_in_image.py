@@ -4,7 +4,7 @@ import base64
 import numpy as np
 
 from PIL import Image as PIL_Image
-from detector.yolo_detector import YoloDetector
+from people_tracker_yolo.detector.yolo_detector import YoloDetector
 
 
 class Image(object):

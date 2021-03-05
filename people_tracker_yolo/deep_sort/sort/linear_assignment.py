@@ -4,7 +4,7 @@ import numpy as np
 # from sklearn.utils.linear_assignment_ import linear_assignment
 from scipy.optimize import linear_sum_assignment as linear_assignment
 
-from deep_sort.sort import kalman_filter
+from people_tracker_yolo.deep_sort.sort import kalman_filter
 
 
 INFTY_COST = 1e+5

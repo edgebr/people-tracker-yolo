@@ -2,13 +2,13 @@ import os
 
 import torch
 
-from detector.utils.general import non_max_suppression
-from detector.utils.general import scale_coords, xyxy2xywh
-from detector.yolo_detector import YoloDetector
+from people_tracker_yolo.detector.utils.general import non_max_suppression
+from people_tracker_yolo.detector.utils.general import scale_coords, xyxy2xywh
+from people_tracker_yolo.detector.yolo_detector import YoloDetector
 
-from deep_sort import DeepSort
+from people_tracker_yolo.deep_sort import DeepSort
 
-from tracker import settings
+from people_tracker_yolo.tracker import settings
 
 
 FILE_PATH = os.path.dirname( os.path.abspath(__file__) )
